@@ -10,14 +10,30 @@ const PORT = process.env.PORT || 8000;
 app.use(cors());
 app.use(express.json());
 
+//db connect
+import { connectDb } from "./src/config/dbConfig.js";
+connectDb();
+
 //routers
+
+import adminRouter from "./src/routers/adminRouter.js";
+
+app.use("/api/v1/admin", adminRouter);
 app.use("/", (req, res) => {
   res.json({
     message: "You do not have access here",
   });
 });
-///error handlers
 
+///error handlers
+app.use((error, req, res, next) => {
+  const errorCode = error.errorCode || 404;
+
+  res.status(errorCode).json({
+    status: "error",
+    message: error.message,
+  });
+});
 app.listen(PORT, (error) => {
   error
     ? console.log(error)
